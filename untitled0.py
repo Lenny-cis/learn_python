@@ -124,3 +124,77 @@ print(np.unique(array_with_dupes))
 set_of_lines=set([list(x)[2][1] for x in zipped_data])
 uniques=[x for x in zipped_data if not set_of_lines.remove(list(x)[2][1])]
 print(set_of_lines)
+
+import re
+word='\w+'
+sentence='Here is my sentence.'
+re.findall(word,sentence)
+search_result=re.search(word,sentence)
+search_result.group()
+match_result=re.match(word,sentence)
+match_result.group()
+
+number='\d+'
+capitalized_word='[A-Z]\w+'
+sentence='I have 2 pets: Bear and Bunny.'
+search_number=re.search(number,sentence)
+search_number.group()
+match_number=re.match(number,sentence)
+match_number.group()
+search_capital=re.search(capitalized_word,sentence)
+search_capital.group()
+match_capital=re.match(capitalized_word,sentence)
+match_capital.group()
+
+name_regex='([A-Z]\w+) ([A-Z]\w+)'
+names="Barack Obama, Ronald Reagan, Nancy Drew"
+name_match=re.match(name_regex,names)
+name_match.group()
+name_match.groups()
+name_regex='(?P<first_name>[A-Z]\w+) (?P<last_name>[A-Z]\w+)'
+for name in re.finditer(name_regex,names):
+    print('Meet {}!'.format(name.group('first_name')))
+
+def get_rows(file_name):
+    rdr=reader(open(file_name,'r'))
+    return [row for row in rdr]
+def eliminate_mismatches(header_rows,data_rows):
+    all_short_headers=[h[0] for h in header_rows]
+    skip_index=[]
+    final_header_rows=[]
+    for header in data_rows[0]:
+        if header not in all_short_headers:
+            index=data_rows[0].index(header)
+            if index not in skip_index:
+                skip_index.append(index)
+            else:
+                for head in header_rows:
+                    if head[0]==header:
+                        final_header_rows.append(head)
+                        break
+    return skip_index,final_header_rows
+def zip_data(headers,data):
+    zipped_data=[]
+    for drow in data:
+        zipped_data.append(zip(headers,drow))
+    return zipped_data
+def create_zipped_data(final_header_rows,data_rows,skip_index):
+    new_data=[]
+    for row in data_rows[1:]:
+        new_row=[]
+        for index,data in enumerate(row):
+            if index not in skip_index:
+                new_row.append(data)
+        new_data.append(new_row)
+    zipped_data=zip_data(final_header_rows,new_data)
+    return zipped_data
+def main():
+    data_rows=get_rows('data/unicef/mn.csv')
+    header_rows=get_rows('data/unicef/mn_headers.csv')
+    skip_index,final_header_rows=eliminate_mismatches(header_rows,
+                                                      data_rows)
+    zipped_data=create_zipped_data(final_header_rows,data_rows,skip_index)
+if __name__=='__main__':
+    main()
+    
+
